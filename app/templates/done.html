@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+  <div style="font-size:40px">✅</div>
+  <p>Файл <b>{{ filename }}</b> завантажено!</p>
+  <div class="link" id="link">{{ link }}</div>
+  <button onclick="navigator.clipboard.writeText('{{ link }}'); this.textContent='Скопійовано ✓'">Копіювати посилання</button>
+  <p style="color:var(--muted);font-size:13px;margin-top:14px">Посилання на завантаження діє {{ hours }} год.</p>
+  <a href="/" class="btn" style="background:#334155;color:var(--text)">Завантажити ще</a>
+{% endblock %}

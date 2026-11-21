@@ -1,0 +1,47 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Встановити залежності
+        run: pip install -r app/requirements.txt pytest
+      - name: Запустити тести
+        run: pytest -q tests/
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Скопіювати файли на сервер
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "app,nginx,docker-compose.yml"
+          target: "/home/${{ secrets.VM_USER }}/clouddrop"
+
+      - name: Перезібрати і перезапустити контейнери
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd ~/clouddrop
+            docker compose up -d --build
+            docker image prune -f
+            sleep 5
+            curl -fsS http://localhost/health

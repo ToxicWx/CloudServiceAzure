@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <label class="drop">
+      <input type="file" name="file" required onchange="document.getElementById('fname').textContent = this.files[0]?.name || ''">
+      <div>📁 Натисніть, щоб обрати файл</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:6px">до {{ max_mb }} МБ</div>
+      <div id="fname"></div>
+    </label>
+    <button type="submit">Завантажити в хмару</button>
+  </form>
+{% endblock %}
